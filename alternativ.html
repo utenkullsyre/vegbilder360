@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width" />
+  <title>Vegbilder - Statens Vegvesen</title>
+
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.8/dist/css/uikit.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+
+
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    #viewDiv {
+      cursor: pointer;
+    }
+
+    :focus {
+      outline: none !important;
+    }
+
+    #info {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    #vegbilde-vindu {
+      max-width: 650px;
+      min-width: 600px;
+      /* max-height: 550px; */
+      min-height: 450px;
+    }
+
+    .vegnummer-tittel {
+      color: #ed9300 !important;
+    }
+
+    .tab-innhold {
+      padding: 0 !important;
+    }
+
+    .grayscale {
+      -webkit-filter: grayscale(100%) blur(1px) !important;
+      -moz-filter: grayscale(100%) blur(1px) !important;
+      filter: grayscale(100%) blur(1px) !important;
+    }
+
+    /* .uk-notification-message {
+      background-color: #facd84;
+      color: white;
+    } */
+
+    .uk-tab>.uk-active>a {
+      border-color: #ed9300;
+    }
+
+    .uk-spinner>svg>circle {
+      color: #ed9300;
+      stroke-width: 1px !important;
+      z-index: 11;
+    }
+
+    .vegbilde-boks {
+      position: relative;
+    }
+
+    .innlasting-spinner {
+      position: absolute;
+      top: 25%;
+      left: 40%;
+      z-index: 10;
+    }
+
+    #test {
+      max-height: 95%;
+      margin: 5px 10px;
+      overflow: hidden;
+    }
+
+    #pano-modal {
+      padding:30px;
+    }
+    
+    #pano-kropp{
+      width:100%;
+    }
+
+    .skjult {
+      display: none;
+    }
+
+    .knapp {
+      background-color: #ed9300;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      transition: all 0.5s;
+    }
+
+    .knapp:hover {
+      background-color: #facd84;
+    }
+
+    .btn,
+    .btn:hover {
+      background-color: rgba(0, 0, 255, 0) !important
+    }
+
+    .knapp-icon {
+        padding:6px;
+        margin: 0 10px;
+        border-radius: 50%;
+        transition: background-color .4s;
+    }
+
+    .knapp-icon > svg > circle,path {
+      stroke: #ed9300 !important;
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 1);
+    }
+
+    .knapp-icon:hover {
+      background: #ececec;
+    
+    }
+
+    .knapp-icon:active {
+      background-color: #ffb847;
+
+    }
+
+    .pulse_animation {
+      animation: pulse 2s;
+    }
+
+    @keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 166, 0, 0.7);
+    }
+    
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+    .aktivValg {
+      text-decoration: underline;
+    }
+
+    .bilder {
+      margin: 80px !important;
+      max-height: 80vh !important;
+    }
+
+    .top-section {
+      position: relative;
+    }
+
+    .stack {
+      top: 0px;
+    }
+
+    .popup-init,
+    .klikkbart {
+      cursor: pointer;
+    }
+
+    .valgmeny {
+      display: flex;
+      flex: row nowrap;
+      width: 100%;
+      border-bottom: #888888 2px solid;
+    }
+
+    .valgmeny h4 {
+      cursor: pointer;
+    }
+
+    #bilde-viewer {
+      box-shadow: 5px 10px 8px #888888;
+      max-width: 650px !important;
+      max-height: 530px !important;
+    }
+
+    /* 
+    #viewerImage {
+      width: max-content;
+      min-height: 300px;
+      -webkit-transition: .1s ease-in-out;
+      transition: .1s ease-in-out;
+
+    } */
+
+    .ikon {
+      border-radius: 8px;
+      margin: 4px;
+    }
+
+    .grayscale {
+      -webkit-filter: grayscale(100%) blur(1px) !important;
+      -moz-filter: grayscale(100%) blur(1px) !important;
+      filter: grayscale(100%) blur(1px) !important;
+    }
+
+    .clippy {
+      box-shadow: 0 0 0 0 rgba(255, 150, 0, 1);
+      transform: scale(1);
+      animation-name: pulse;
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+    }
+
+    .loader,
+    .loader:after {
+      border-radius: 50%;
+      width: 10em;
+      height: 10em;
+    }
+
+    .loader {
+      position: absolute;
+      left: 42%;
+      top: 35%;
+      height: 100px;
+      width: 100px;
+      margin: 0px auto;
+      -webkit-animation: rotation .6s infinite linear;
+      -moz-animation: rotation .6s infinite linear;
+      -o-animation: rotation .6s infinite linear;
+      animation: rotation .6s infinite linear;
+      border-left: 8px solid rgba(255, 197, 122, 0.15);
+      border-right: 8px solid rgba(255, 197, 122, 0.15);
+      border-bottom: 8px solid rgba(255, 197, 122, 0.15);
+      border-top: 8px solid rgba(255, 179, 37, 0.8);
+      border-radius: 100%;
+    }
+
+    #panorama {
+        width: 100%;
+        height: 95vh;
+    }
+
+    .vegnummer {
+      display: flex;
+      justify-content: start;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.6.2/viewer.min.css"
+    integrity="sha512-8ZhoOdKiZafVRcEa08KcidOK/B85ByNOaWUiBXRi8kZ3pWUWJsBuY8sGBK6hZPWZhH35uXtFyRH/5DLTo2u6EQ=="
+    crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.16/esri/themes/light/main.css" />
+
+  <script>
+    window.dojoConfig = {
+      packages: [{
+        name: "vue",
+        location: "https://unpkg.com/vue/dist/",
+        main: "vue",
+      }, ],
+    };
+  </script>
+
+      <!-- UIkit JS -->
+      <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.8/dist/js/uikit.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.8/dist/js/uikit-icons.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.6.2/viewer.min.js"
+    integrity="sha512-VzJLwaOOYyQemqxRypvwosaCDSQzOGqmBFRrKuoOv7rF2DZPlTaamK1zadh7i2FRmmpdUPAE/VBkCwq2HKPSEQ=="
+    crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <script src="https://js.arcgis.com/4.16/"></script>
+
+
+  <script>
+    function standby() {
+      document.getElementById("vegbilde").src = "https://kart.skoiddlos.com/symbologi/svvlogo.png";
+    }
+
+    require([
+      "esri/views/MapView",
+      "esri/WebMap",
+      "esri/Basemap",
+      "esri/layers/TileLayer",
+      "esri/request",
+      "esri/Graphic",
+      "esri/widgets/Search",
+      "esri/widgets/BasemapToggle",
+      "vue",
+    ], function (MapView, WebMap, Basemap, TileLayer, esriRequest, Graphic, Search, BasemapToggle, Vue) {
+      /*********************'***************************************
+       * Creates a new WebMap instance. A WebMap must reference
+       * a PortalItem ID that represents a WebMap saved to
+       * arcgis.com or an on-premise portal.
+       *
+       * To load a WebMap from an on-premise portal, set the portal
+       * url with esriConfig.portalUrl.
+       ************************************************************/
+      var webmap = new WebMap({
+        portalItem: {
+          // autocasts as new PortalItem()
+          id: "2b2e7fa91b834f368b103a4efacec4dd",
+        },
+      });
+
+      var flyfoto_grunnlag = new TileLayer({
+        url: "https://services.geodataonline.no/arcgis/rest/services/Geocache_UTM33_EUREF89/GeocacheBilder/MapServer",
+        id: "Flyfoto",
+        visible: true
+      });
+
+      var hybrid = new TileLayer({
+        url: "https://services.geodataonline.no/arcgis/rest/services/Geocache_UTM33_EUREF89/GeocacheHybrid/MapServer",
+        id: "Hybrid",
+        visible: true,
+        opacity: 0.6,
+      });
+
+      var flyfotoHybridBakgrunn = new Basemap({
+        baseLayers: [flyfoto_grunnlag, hybrid],
+        visible: false,
+        id: "Flyfoto",
+        spatialReference: {
+          wkid: 25833,
+        },
+        thumbnailUrl: "https://kart.skoiddlos.com/symbologi/bakgrunn_flyfoto.png",
+      });
+
+      console.log(flyfotoHybridBakgrunn);
+
+
+
+
+
+      //TODO: Fjern alle consol-meldinger som ikke er knyttet til feilmelding
+      //TODO: Fjern autoload bilde når hovedbilde ikke blir hentet inn
+
+      /************************************************************
+       * Set the WebMap instance to the map property in a MapView.
+       ************************************************************/
+      var view = new MapView({
+        map: webmap,
+        container: "viewDiv",
+        spatialReference: {
+          wkid: 25833,
+        },
+      });
+
+      function extentCalc(kartPkt, d) {
+        let x = kartPkt.x;
+        let y = kartPkt.y;
+
+        return [x - d, y - d, x + d, y + d];
+      };
+
+      async function hentVegposisjon(kartPkt) {
+        let vegPosUrl = "https://nvdbapiles-v3.atlas.vegvesen.no/posisjon?maks_avstand=20&nord=" + kartPkt.y +
+          "&ost=" + kartPkt.x;
+
+        let response = await fetch(vegPosUrl);
+        let jsonData = await response.json();
+
+        return jsonData;
+      };
+
+      function setMarker(kartpkt, retning) {
+        // First create a point geometry (this is the location of the Titanic)
+        var point = {
+          type: "point", // autocasts as new Point()
+          x: kartpkt.x,
+          y: kartpkt.y,
+          spatialReference: {
+            wkid: 25833,
+          },
+        };
+
+        let markerSymbol;
+
+        // Create a symbol for drawing the point
+        if (retning) {
+          markerSymbol = {
+            type: "picture-marker",
+            url: "https://kart.skoiddlos.com/symbologi/pil.png",
+            width: 50,
+            height: 50,
+            angle: retning,
+          };
+        } else {
+          markerSymbol = {
+            type: "simple-marker",
+            outline: {
+              width: 1
+            },
+            size: 13,
+            color: [235, 123, 119, 0.64]
+          };
+        }
+
+        // Create a graphic and add the geometry and symbol to it
+        var pointGraphic = new Graphic({
+          geometry: point,
+          symbol: markerSymbol,
+        });
+
+        return pointGraphic;
+      }
+
+      //console.log(view, "Kartet");
+
+      view.ui.remove("attribution");
+
+      view.constraints = {
+        rotationEnabled: false,
+      };
+
+      view.when(function () {  
+
+        view.map.basemap.thumbnailUrl = "https://kart.skoiddlos.com/symbologi/bakgrunn_vektor.png",
+
+
+
+        console.log(view, "Kartet");
+        view.watch("map.allLayers.items.length", function(newValue, oldValue) {
+          console.log("Helvete", newValue);
+        })
+
+        const velgAar = new Vue({
+          el: "#velgAar",
+          data: {
+            valgtAar: 2020,
+            lagInfo: "",
+            aarstall: [],
+            lagListe: [],
+          },
+
+          computed: {
+            // aarstall: function () {
+            //   try {
+            //     let lag = this.lagInfo.layerDescriptions
+
+            //     return tilgjengeligeAarstall = lag.map(obj => {
+            //       return parseInt(obj.typeName.split("vegbilder_1_0:Vegbilder_")[1])
+            //     }).sort().reverse()
+
+            //     return this.response.features[0].properties.URL
+            //   } catch (error) {
+            //     return "";
+            //   }
+            // },
+          },
+
+          methods: {
+            hentLagListe() {
+              console.log("Henter lagliste inne i valgtAar vue");
+
+              try {
+                // Hente inn lagListe fra layerViews
+                lag = view.layerViews.items;
+
+                // Lage objekter for oversiktslag og vegbilde og tilegne de respektive lagene fra laglista
+                let vegbilder = {
+                  2020: [],
+                  2019: []
+                };
+                let oversiktslag = {
+                  2020: [],
+                  2019: []
+                };
+
+
+                // TODO: Djiisis allmektige gjør nå med det her når hauue ditt e på rett plass igjen. Effing noob
+
+                //Iterere over sublayers i oversiktslag for å sortere år på nøkler
+                let sublayersOversikt = lag[0].layer.allSublayers.items;
+                sublayersOversikt.map(obj => {
+                  // Lagre lagene som faller inn under de forskjellige årene i en array som kan igjen itereres over når man skal skru av og på
+                  let aarstall = obj.title.slice(-4);
+                  switch (true) {
+                    case parseInt(aarstall) === 2019:
+                      oversiktslag[2019].push(obj)
+                      break;
+
+                    case parseInt(aarstall) === 2020:
+                      oversiktslag[2020].push(obj)
+                      break;
+
+                    default:
+                      break;
+                  }
+                })
+
+                this.oversiktsLag = oversiktslag;
+
+                //Iterere over sublayers i vegbilder for å sortere år på nøkler
+                let sublayerVegbilder = lag[1].layer.allSublayers.items;
+                sublayerVegbilder.map(obj => {
+                  let aarstall = obj.title.slice(-4);
+                  switch (true) {
+                    case parseInt(aarstall) === 2019:
+                      vegbilder[2019].push(obj)
+                      break;
+
+                    case parseInt(aarstall) === 2020:
+                      vegbilder[2020].push(obj)
+                      break;
+
+                    default:
+                      break;
+                  }
+                })
+
+                this.vegbildeLag = vegbilder;
+              } catch (error) {
+                console.log(error, "Feil med å hente laglister");
+              }
+
+
+              // try {
+              //   // TODO: Lag denne her litt smartere ved å velge hovedlag basert på tittel, gjør det mer dynamisk
+              //   let subLayers = view.layerViews.items[1].layer.allSublayers.items
+              //   let lagListe = subLayers.map(obj => {
+              //     this.lagListe[obj.title.split("Vegbilder_")[1]] = obj
+              //   })
+              //   console.log(this.lagListe, "lagListe");
+              // } catch (error) {
+              //   console.log(error, "feilm med å lage lagLister")
+              // }
+            },
+
+            endreAarstall() {
+              const vm = this;
+              this.hentLagListe();
+              view.graphics.removeAll();
+              console.log(this.lagListe, "Endrer aarstall inne i valgtAar vue");
+
+              console.log(typeof (this.valgtAar));
+              try {
+                info.valgtAar = this.valgtAar;
+
+                function oppdatereLagSynlighet(lag) {
+                  for (const [key, value] of Object.entries(lag)) {
+
+                    if (parseInt(key) === vm.valgtAar) {
+                 // console.log("Henter lagobjekt for " + key, lag[key]);
+                      lag[key].map(obj => {
+                        obj.visible = true
+                      })
+                      // lag[key].visible = true
+                    } else {
+                      lag[key].map(obj => {
+                        obj.visible = false
+                      })
+                    }
+                  }
+                };
+
+                console.log(this.vegbildeLag, this.oversiktsLag, "Laglister");
+
+                oppdatereLagSynlighet(this.vegbildeLag);
+                oppdatereLagSynlighet(this.oversiktsLag);
+
+
+              } catch (error) {
+                console.log(error, "Noe gikk galt med å endre aarstall");
+              }
+
+              // this.lagListe.map(obj => {
+              //   if (obj.title === String(this.valgtAar)) {
+              //     obj.visible = true
+              //   } else {
+              //     obj.visible = false
+              //   }
+              // });
+            },
+          },
+          mounted() {
+            let element = document.getElementById("velgAar");
+            element.classList.remove("skjult");
+
+            this.aarstall = [2020, 2019]
+
+            // console.log(view.layerViews.items.length, "Kart inne i mounted");
+            // let vegbildeLag = view.map.layers.items[1].layer.allSublayers.items;
+
+
+
+            // this.aarstall = vegbildeLag.map(obj => {
+            //   return parseInt(obj.title.slice(-4))
+            // });
+
+
+            // console.log("Henter lagInfo inne i valgtAar vue");
+            // async function requestLayerInfo() {
+            //   let infoUrl =
+            //     "https://www.vegvesen.no/kart/ogc/vegbilder_1_0/ows?SERVICE=WMS&VERSION=1.1.1&request=DescribeLayer&layers=vegbilder_1_0:Vegbilder&outputFormat=application/json"
+
+            //   let response = await fetch(infoUrl);
+            //   let data = await response.json()
+            //   return data;
+            // }
+
+            // requestLayerInfo()
+            //   .then(data => {
+            //     console.log(data, "Henter lagInfo inne i valgtAar vue");
+            //     this.lagInfo = data
+            //   })
+          }
+        });
+
+        // Initierer Vue-instance
+        const info = new Vue({
+          el: "#info",
+          data: {
+            aktivFane: 'bilde',
+            toggle: "no",
+            bildeviser: null,
+            bildeLastet: true,
+            animated: false,
+            bildeAktiv: true,
+            valgtAar: 2020,
+            kartPkt: {},
+            response: {},
+            lagInfo: "",
+            lagListe: {},
+            vegsysrefKlikk: "",
+            vegbildeLag: {},
+            oversiktsLag: {},
+            vegnr: "",
+            zoomKlikk: false,
+          },
+          computed: {
+            bilde: function () {
+              try {
+                return this.response.features[0].properties.URL
+              } catch (error) {
+                return "";
+              }
+            },
+
+            posisjon: function () {
+              try {
+                return {
+                  x: this.response.features[0].geometry.coordinates[0],
+                  y: this.response.features[0].geometry.coordinates[1]
+                }
+              } catch (error) {
+                console.log("Feil ved å hente posisjon");
+                return {
+                  x: 0,
+                y: 0
+                }
+              }
+            },
+
+            dato: function () {
+              try {
+                let dato = new Date(this.response.features[0].properties.TIDSPUNKT);
+                let dag =
+                  ("0" + dato.getDate()).slice(-2) +
+                  "/" +
+                  ("0" + (dato.getMonth() + 1)).slice(-2) +
+                  "/" +
+                  dato.getFullYear();
+                let tidspunkt =
+                  ("0" + dato.getUTCHours()).slice(-2) +
+                  ":" +
+                  ("0" + dato.getUTCMinutes()).slice(-2);
+
+                return dag + " - " + tidspunkt;
+              } catch (error) {
+                console.log(
+                  error,
+                  "Feilmelding under lagring av dato i vue-komponent"
+                );
+                return "Helvete";
+              }
+            },
+
+            caption: function () {
+              return (this.vegnr + " - " + this.dato)
+            },
+
+            // aarstall: function () {
+            //   try {
+            //     let lag = this.lagInfo.layerDescriptions
+
+            //     return tilgjengeligeAarstall = lag.map(obj => {
+            //       return parseInt(obj.typeName.split("vegbilder_1_0:Vegbilder_")[1])
+            //     }).sort().reverse()
+
+            //     return this.response.features[0].properties.URL
+            //   } catch (error) {
+            //     return "";
+            //   }
+            // },
+
+            vegkartUrl: function () {
+              try {
+                let x = this.kartPkt.x;
+                let y = this.kartPkt.y;
+                console.log(this.vegsysrefKlikk, " Her er vegsysrefklikk ka faen det no e")
+                let sammenVegnr = this.vegsysrefKlikk.replace(/\s+/g, '');
+                console.log(sammenVegnr, "Her er sammenvegnr");
+                return "https://vegkart.atlas.vegvesen.no/#kartlag:geodata/@" + x + "," + y +
+                  ",15/hvor:~(vegsystemreferanse~(~'" + sammenVegnr + "))"
+              } catch (error) {
+                console.log(error, "Feil ved vegkarturl");
+                return "https://vegkart.atlas.vegvesen.no/#kartlag:geodata/@600000,7133139,3"
+              }
+            },
+
+            egenskaper: function () {
+              try {
+                return this.response.features[0].properties;
+              } catch (error) {
+                console.log(error, "Feil ved henting av egenskaper");
+                return ""
+              }
+            },
+
+            norgeskartUrl: function () {
+              try {
+                let x = this.response.features[0].geometry.coordinates[0];
+                let y = this.response.features[0].geometry.coordinates[1];
+                let url =
+                  "https://norgeskart.no/#!?project=seeiendom&layers=1002,1013,1014,1015&zoom=16&lat=" +
+                  y + "&lon=" + x + "&markerLat=" + y + "&markerLon=" + x + "&panel=searchOptionsPanel";
+                console.log(url, "Norgeskart-url");
+                return url
+              } catch (error) {
+                console.log(error, "Feil ved norgeskart-url");
+                return "https://norgeskart.no/#!?project=seeiendom&layers=1002,1013,1014,1015&zoom=4&lat=7197864.00&lon=396722.00"
+              }
+
+
+            }
+          },
+          methods: {
+            hentBilde(url) {              
+
+              // try {
+              //   let subLayers = view.allLayerViews.items[2].layer.allSublayers.items
+              //   let lagListe = subLayers.map(obj => {
+              //     this.lagListe[obj.title.split("Vegbilder_")[1]] = obj
+              //   })
+              //   console.log(this.lagListe, "lagListe");
+              // } catch (error) {
+              //   console.log(error, "feilm med å lage lagLister")
+              // }
+
+              fetch(url)
+                .then((response) => {
+                  // The response is a Response instance.
+                  // You parse the data into a useable format using `.json()`
+                  return response.json();
+                })
+                .then((response) => {
+                  function isEven(value) {
+                    return (value % 2 == 0);
+                  }
+                  // console.log(parseInt(response.features[0].properties.FELTKODE));
+                  // console.log(isEven(parseInt(response.features[0].properties.FELTKODE)));
+                  //console.log(response.features);
+                  // `data` is the parsed version of the JSON returned from the above endpoint.
+                  let data = response;
+
+                  console.log(response);
+
+                  if (data.features.length !== 0) {
+
+                    let pkt = data.features[0].geometry.coordinates;
+                    let marker = setMarker({
+                        x: pkt[0],
+                        y: pkt[1],
+                      },
+                      data.features[0].properties.RETNING
+                    );
+                    view.graphics.add(marker);
+
+                    this.settVegnr(data);
+
+                    //Lagrer verdier
+                    this.response = data;
+                  } else {
+                    info.response = "";
+                    UIkit.notification({
+                      message: '<p><span uk-icon=\'icon: warning\'></span> Ingen bilder funnet</p><p>Klikk på et annet punkt</p>',
+                      pos: 'bottom-center',
+                      status: 'warning',
+                      timeout: 1200
+                    })
+                  }
+                });
+            },
+
+            initierPano() {
+              pannellum.viewer('panorama', {
+                  "type": "equirectangular",
+                  "panorama": "https://kart.skoiddlos.com/symbologi/pano_demo.jpg",
+                  "title" : this.vegnr + " - " + this.dato,
+                  "autoLoad": true,
+                  "autoRotate": 3,
+              });
+            },
+
+
+            settVegnr(response) {
+              console.log("Kaller settVegnr", response);
+              const vm = this;
+              try {
+
+                let urlSplit = response.features[0].properties.URL.split("/")
+                let vegreferanseImgUrl = urlSplit[urlSplit.length - 1]
+
+                let vegreferanseSplit = vegreferanseImgUrl.split("_");
+
+                let kartPkt = {
+                  x: response.features[0].geometry.coordinates[0],
+                  y: response.features[0].geometry.coordinates[1]
+                }
+
+                hentVegposisjon(kartPkt)
+                  .then(jsonData => {
+
+                    vm.vegsysrefKlikk = jsonData[0].vegsystemreferanse.kortform;
+
+                    if (response.features[0].properties.STREKNING) {
+                      vm.vegnr = response.features[0].properties.VEGKATEGORI +
+                        response.features[0].properties.VEGSTATUS +
+                        response.features[0].properties.VEGNUMMER +
+                        " S" +
+                        response.features[0].properties.STREKNING +
+                        " D" +
+                        response.features[0].properties.DELSTREKNING +
+                        " m" +
+                        Math.round(response.features[0].properties.METER);
+                    } else {
+                      console.log(jsonData, "Vegposisjon");
+
+
+                      console.log("Her er vegsysrefklikk inni i hentVegposisjon", vm.vegsysrefKlikk);
+
+                      let historiskVegref = (vegreferanseSplit[1] + " " + vegreferanseSplit[2] + " " +
+                        vegreferanseSplit[4].slice(0, -4)).toUpperCase()
+                      let dagensVegref = "";
+
+                      dagensVegref = " (<i>" + vm.vegsysrefKlikk + "</i>)";
+
+                      vm.vegnr = historiskVegref + dagensVegref;
+
+
+
+                    }
+                  })
+
+              } catch (error) {
+                console.log(
+                  error,
+                  "Feilmelding under lagring av vegnr i vue-komponent"
+                );
+                return "";
+              }
+            },
+
+            // endreAarstall() {
+            //   view.graphics.removeAll();
+
+            //   console.log(typeof (this.valgtAar));
+
+            //   for (const [key, value] of Object.entries(this.lagListe)) {
+            //     console.log(`${key}: ${value}`);
+            //     console.log(typeof (key), "Nøkkelen i objektet");
+            //     console.log("Henter lagobjekt for " + key, this.lagListe[key]);
+            //     if (parseInt(key) === this.valgtAar) {
+            //       console.log("Henter lagobjekt for " + key, this.lagListe[key]);
+            //       this.lagListe[key].visible = true
+            //     } else {
+            //       this.lagListe[key].visible = false
+            //     }
+            //   }
+            //   // this.lagListe.map(obj => {
+            //   //   if (obj.title === String(this.valgtAar)) {
+            //   //     obj.visible = true
+            //   //   } else {
+            //   //     obj.visible = false
+            //   //   }
+            //   // });
+            // },
+
+            toggleStortbilde() {
+              // this.toggle === "yes" ? this.toggle = "no" : this.toggle = "yes";
+              console.log();
+
+              if (!this.bildeviser) {
+                let viewer = new Viewer(
+                  document.getElementById("vegbilde"), {
+                    inline: false,
+                    viewed() {
+                      viewer.zoomTo(0.35);
+                    },
+                    toolbar: {
+                      zoomIn: 1,
+                      zoomOut: 1,
+                      oneToOne: 1,
+                      reset: 0,
+                      prev: 0,
+                      play: {
+                        show: 0,
+                        size: "large",
+                      },
+                      next: 0,
+                      rotateLeft: 4,
+                      rotateRight: 4,
+                      flipHorizontal: 0,
+                      flipVertical: 0,
+                    },
+                    navbar: 0,
+                  }
+                );
+
+                viewer.show();
+
+                this.bildeviser = viewer;
+              } else {
+                console.log(this.bildeviser);
+                this.bildeviser.url = this.bilde;
+                this.bildeviser.show();
+              }
+            },
+
+            copyClipboard() {
+              var elm = document.getElementById("vegnr");
+              // for Internet Explorer
+
+              if (document.body.createTextRange) {
+                var range = document.body.createTextRange();
+                range.moveToElementText(elm);
+                range.select();
+                document.execCommand("Copy");
+                alert("Copied div content to clipboard");
+              } else if (window.getSelection) {
+                // other browsers
+
+                var selection = window.getSelection();
+                var range = document.createRange();
+                range.selectNodeContents(elm);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                document.execCommand("Copy");
+                this.animated = true;
+                selection.removeAllRanges();
+              }
+            },
+
+            zoomIn() {
+              this.zoomKlikk = true;
+              let ext = view.center
+              ext.x = this.posisjon.x;
+              ext.y = this.posisjon.y;
+
+              view.goTo({
+                center: ext,
+                zoom: 16,
+              })
+
+            }
+
+          },
+
+          mounted() {
+            console.log(this.lagListe);
+
+            // async function requestLayerInfo() {
+            //   let infoUrl =
+            //     "https://www.vegvesen.no/kart/ogc/vegbilder_1_0/ows?SERVICE=WMS&VERSION=1.1.1&request=DescribeLayer&layers=vegbilder_1_0:Vegbilder&outputFormat=application/json"
+
+            //   let response = await fetch(infoUrl);
+            //   let data = await response.json()
+            //   return data;
+            // }
+
+            // requestLayerInfo()
+            //   .then(data => {
+            //     this.lagInfo = data
+            //   })
+
+            let element = document.getElementById("info");
+            element.classList.remove("skjult");
+
+
+            console.log(window.location.href, "Sideurl")
+          },
+
+          unmounted() {
+            this.bildeViser.destroy()
+          }
+        });
+
+        function klikkRequest(kartpunkt) {
+          info.bildeLastet = false;
+          // info.aktivFane = 'bilde';
+          view.graphics.removeAll();
+
+          const mapScale = view.scale;
+
+          let extent;
+          let klikkAreal;
+
+          //Switch for å bestemme beste klikkAreal
+          switch (true) {
+            case mapScale < 300:
+              klikkAreal = 0.5;
+              break;
+
+            case mapScale < 4999:
+              klikkAreal = 2;
+              break;
+
+            case mapScale < 11000:
+              klikkAreal = 6;
+              break;
+
+            case mapScale < 25000:
+              klikkAreal = 15;
+              break;
+
+            case mapScale < 200000:
+              klikkAreal = 30;
+              break;
+
+            case mapScale < 200000:
+              klikkAreal = 35;
+              break;
+              
+            case mapScale < 600000:
+              klikkAreal = 70;
+              break;
+
+            case mapScale < 1500000:
+              klikkAreal = 250;
+              break;
+
+            case mapScale >= 1500000:
+              klikkAreal = 1000;
+              break;
+
+
+
+            default:
+              klikkAreal = 4;
+              break;
+          }
+
+          alert("Extent: senterpunkt +- " + klikkAreal)
+
+          try {
+            extent = extentCalc(kartpunkt, klikkAreal);
+          } catch (error) {
+            console.log(error),
+              "Feilmelding under beregning av klikkpkt extent";
+          }
+
+          let url =
+            "https://www.vegvesen.no/kart/ogc/vegbilder_1_0/wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.0.0&TYPENAMES=vegbilder_1_0:Vegbilder_" +
+            info.valgtAar + "&STARTINDEX=0&COUNT=10&SRSNAME=urn:ogc:def:crs:EPSG::25833&BBOX=" +
+            extent.join(",") +
+            ",urn:ogc:def:crs:EPSG::25833&outputFormat=application/json";
+
+          info.hentBilde(url);
+        };
+
+
+        const searchWidget = new Search({
+          view: view,
+        });
+
+        view.ui.add(searchWidget, {
+          position: "top-right",
+          index: 2,
+        });
+
+        const basemapToggle = new BasemapToggle({
+          view: view, // The view that provides access to the map's "streets-vector" basemap
+          nextBasemap: flyfotoHybridBakgrunn // Allows for toggling to the "hybrid" basemap
+        });
+
+        view.ui.add(basemapToggle, "top-left");
+
+        view.ui.add(info.$el, "bottom-right");
+
+        view.ui.add(velgAar.$el, "top-right");
+
+        view.on("click", function (event) {
+
+          // // Melding for å vise målestokk
+          console.log(view.scale, "Målestokk");
+          info.kartPkt = event.mapPoint;
+
+          klikkRequest(event.mapPoint);
+        });
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div id="velgAar" class="uk-card uk-card-default uk-padding-small skjult">
+    <div class="uk-flex uk-flex-middle ">
+      <h5 class="uk-padding-small uk-text-middle uk-padding-remove-vertical uk-padding-remove-left uk-margin-remove">
+        Valgt årstall:</h5>
+      <form>
+        <select class="uk-select" @change="endreAarstall" v-model="valgtAar">
+          <option v-for="tall in aarstall" v-bind:value="tall">
+            {{ tall }}
+          </option>
+        </select>
+      </form>
+    </div>
+  </div>
+
+  <div id="info" class="esri-widget skjult">
+    <div id="vegbilde-vindu" v-if="bilde" class="uk-card uk-card-default uk-padding-small uk-card-body">
+      <div  class="uk-flex uk-flex-left uk-flex-middle " >
+        <h3 class="uk-card-title vegnummer-tittel uk-margin-remove" v-html="vegnr"></h3>
+        <span uk-icon='icon: search' class="knapp-icon pulse_animation" @click="zoomIn"  @animationend="zoomKlikk = false"></span>       
+      </div>
+      
+      
+      <!-- <div class="uk-flex uk-flex-middle  ">
+        <span class="uk-padding-small uk-pading-remove-vertical uk-padding-remove-left">Velg årstall:</span>
+        <form>
+          <select class="uk-select" @change="endreAarstall" v-model="valgtAar">
+            <option v-for="tall in aarstall" v-bind:value="tall">
+              {{ tall }}
+            </option>
+          </select>
+        </form>
+      </div> -->
+      <div>
+        <ul uk-tab>
+          <li class="uk-active" @click="aktivFane = 'bilde'"><a href="#">Vegbilde</a></li>
+          <li><a href="#" @click="aktivFane = 'metadata'">Info</a></li>
+          <!-- <li></li> -->
+        </ul>
+      </div>
+
+      <div class="uk-container tab-innhold" v-if="aktivFane == 'bilde'">
+        <p>Dato: {{dato}} </p>
+        <div class="vegbilde-boks">
+          <span class="uk-margin-small-right innlasting-spinner" v-if="!bildeLastet" uk-spinner="ratio: 4"></span>
+          <a :href="bilde" target="_blank"><img id="vegbilde" class="uk-card-media-bottom" v-if="bilde" :class="{grayscale: !bildeLastet}"
+            @load="bildeLastet=true" onerror="standby()" width="620px" height="250px" :data-src="bilde" alt="" uk-img></a>
+        </div>
+
+        <div class="uk-flex uk-flex-between uk-padding-small uk-padding-remove-bottom uk-padding-remove-horizontal">
+
+          <!-- <button class="uk-button uk-button-default demo" type="button"
+            onclick="UIkit.notification({message: '<p><span uk-icon=\'icon: warning\'></span> Message with an icon</p><p>Her er en test på en større melding</p>', pos: 'bottom-center', timeout: 20000})"
+            disabled><span uk-icon='icon: link'></button> -->
+
+
+          <div uk-lightbox>
+            <a :href="bilde" data-alt="Image" :data-caption="caption"><button
+                class="uk-button uk-button-default uk-margin-small-right" type="button"><span
+                  >Stort bilde</button></a>
+          </div>
+
+          <!-- This is a button toggling the modal -->
+          <button uk-toggle="target: #pano-modal" type="button" @click="initierPano"class="uk-button uk-button-default">360</button>
+
+          <div id="pano-modal" class="uk-modal-container" uk-modal>
+            <div id="pano-kropp" class="uk-modal-dialog">
+                <button class="uk-modal-close-full uk-close-large" type="button" uk-close></button>
+                <div class="uk-modal-body" id="panorama"></div>
+            </div>
+        </div>
+
+
+          <a  class="uk-button uk-button-default" :href="vegkartUrl" target="_blank" ><span uk-icon="link"></span>Åpne vegkart</a>
+
+          <!-- <div class="uk-flex uk-flex-left ">
+            <button class="uk-button uk-button-default" disabled><span uk-icon='icon: arrow-up'></span></button>
+            <button class="uk-button uk-button-default" disabled><span uk-icon='icon: arrow-down'></span></button>
+            <button class="uk-button uk-button-default" disabled><span uk-icon='icon: refresh'></span></button>
+          </div> -->
+
+        </div>
+      </div>
+      <!-- <div class="uk-container uk-padding-remove" v-if="aktivFane == 'info'">
+        <a :href="vegkartUrl" target="#">
+          <h3>Lenke til Vegkart</h3>
+        </a>
+        <a :href="norgeskartUrl" target="#">
+          <p>Ormehull til Norgeskart</p>
+        </a>
+      </div> -->
+
+      <div class="uk-container uk-padding-remove" v-if="aktivFane == 'metadata'" v-if="egenskaper">
+        <div>ÅR: {{egenskaper.AAR}}</div>
+        <div>ANKERPUNKT: {{egenskaper.ANKERPUNKT}}</div>
+        <div>DELSTREKNING: {{egenskaper.DELSTREKNING}}</div>
+        <div>FELTKODE: {{egenskaper.FELTKODE}}</div>
+        <div>FYLKENUMMER: {{egenskaper.FYLKENUMMER}}</div>
+        <div>KRYSSDEL: {{egenskaper.KRYSSDEL}}</div>
+        <div>METER: {{egenskaper.METER}}</div>
+        <div>REFLINKID: {{egenskaper.REFLINKID}}</div>
+        <div>REFLINKPOSISJON: {{egenskaper.REFLINKPOSISJON}}</div>
+        <div>RETNING: {{egenskaper.RETNING}}</div>
+        <div>SIDEANLEGGSDEL: {{egenskaper.SIDEANLEGGSDEL}}</div>
+        <div>STREKNING: {{egenskaper.STREKNING}}</div>
+        <div>TIDSPUNKT: {{egenskaper.TIDSPUNKT}}</div>
+        <div>VEGKATEGORI: {{egenskaper.VEGKATEGORI}}</div>
+        <div>VEGNUMMER: {{egenskaper.VEGNUMMER}}</div>
+        <div>VEGSTATUS: {{egenskaper.VEGSTATUS}}</div>
+      </div>
+
+    </div>
+    <!-- <camera-info :url="url"> </camera-info> -->
+  </div>
+
+  <div id="viewDiv"></div>
+</body>
+
+</html>
